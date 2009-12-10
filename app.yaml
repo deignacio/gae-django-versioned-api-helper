@@ -1,0 +1,11 @@
+# mostly boilerplate code taken from
+# http://code.google.com/appengine/articles/django.html
+
+application: helloworld
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /.*
+  script: main.py

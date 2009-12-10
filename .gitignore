@@ -1,0 +1,6 @@
+# Files and file patterns that git should ignore
+*.pyc
+*~
+index.yaml
+.google_appengine
+django
