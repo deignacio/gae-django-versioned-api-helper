@@ -6,6 +6,7 @@ import os
 ROOT_URLCONF = 'urls'
 
 MIDDLEWARE_CLASSES = (
+    'hello_world.versioning.ApiVersionMiddleware'
 )
 
 INSTALLED_APPS = (
