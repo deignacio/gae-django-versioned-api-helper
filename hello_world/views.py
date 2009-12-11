@@ -10,3 +10,7 @@ def hello(request):
 def timestamp(request):
     now = datetime.datetime.now()
     return HttpResponse(now.isoformat())
+
+def utctimestamp(request):
+    now = datetime.datetime.utcnow()
+    return HttpResponse(now.isoformat())
