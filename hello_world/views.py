@@ -40,9 +40,9 @@ def utctimestamp_json(request):
     data = { "now": now.isoformat() }
     return data
 
+@to_http_response()
 @versioned_method(versions={ '1':utctimestamp,
                              '2':utctimestamp_json })
-@to_http_response()
 def timestamp(request):
     now = datetime.datetime.now()
     return now.isoformat()
