@@ -1,6 +1,8 @@
 # copyright 2009 David Ignacio <deignacio@gmail.com>
 
 __all__ = [ "ApiVersionMiddleWare",
+            "build_registered_version_handler",
+            "register_version",
             "versioned_method",
             "run_versioned_func",
             "is_api_version",
@@ -153,3 +155,35 @@ def is_api_version(request, desired_version):
 def get_api_version(request):
     """ returns the api version of the requesting client """
     return request.api_version
+
+_VERSIONS = {}
+def register_version(group, version=_DEFAULT_DEFAULT_VERSION):
+    if not isinstance(version, str):
+        raise Exception("versions must be strings of the form \"M.m\"")
+    def inner_register_version(func):
+        def actual_register_version(request, *args, **kwargs):
+            val = func(request, *args, **kwargs)
+            return val
+        versions = _VERSIONS.setdefault(group, {})
+        versions[version] = actual_register_version
+        return actual_register_version
+    return inner_register_version
+
+def build_registered_version_handler(group):
+    versions = _VERSIONS.get(group)
+    if versions is None:
+        raise Exception("group %s has not been registered with any versions" % group)
+
+    has_default_version = versions.has_key(_DEFAULT_DEFAULT_VERSION)
+    if not has_default_version:
+        def _default_handler(request, *args, **kwargs):
+            raise NotImplementedError("no default handler registered for group %s" % group)
+        versions[_DEFAULT_DEFAULT_VERSION] = _default_handler
+
+    def actual_versioned_func(request, *args, **kwargs):
+        client_version = get_api_version(request)
+        api_version, handler = _get_versioned_func(versions, client_version,
+                                                   _DEFAULT_DEFAULT_VERSION)
+        response = handler(request, *args, **kwargs)
+        return response
+    return actual_versioned_func
