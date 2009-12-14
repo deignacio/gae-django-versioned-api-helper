@@ -5,8 +5,10 @@ import os
 
 ROOT_URLCONF = 'urls'
 
+DEBUG = True
+
 MIDDLEWARE_CLASSES = (
-    'hello_world.versioning.ApiVersionMiddleware'
+    'hello_world.versioning.ApiVersionMiddleware',
 )
 
 INSTALLED_APPS = (
