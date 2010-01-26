@@ -3,7 +3,7 @@
 import datetime
 
 from hello_world.decorators import to_http_response, to_json
-from hello_world.versioning import build_registered_version_handler, get_api_version, is_api_version, register_version, versioned_method
+from versioning import build_registered_version_handler, get_api_version, is_api_version, register_version, versioned_method
 
 @to_http_response()
 def hello(request):
