@@ -1,4 +1,4 @@
-# copyright 2009 David Ignacio <deignacio@gmail.com>
+# copyright 2009-2010 David Ignacio <deignacio@gmail.com>
 
 __all__ = [ "ApiVersionMiddleWare",
             "build_registered_version_handler",
@@ -95,7 +95,7 @@ def _get_versioned_func(versions, desired_version, default_version):
     keys.sort()
     key_to_return = -1
     for key in keys:
-        if _version_cmp(desired_version, key):
+        if (version_cmp(desired_version, key) <= 0):
             break
         else:
             key_to_return = key
@@ -124,21 +124,32 @@ def run_versioned_func(versions, request, default_version,
     api_version, func = _get_versioned_func(versions, client_version, default_version)
     func(*func_args, **func_kwargs)
 
-def _version_cmp(v_a, v_b):
-    if v_a.find(".") != -1:
+def version_cmp(v_a, v_b):
+    """
+    Compares version major and minor versions v_a to version v_b, ignoring micro
+    Returns:
+       -1 if v_a < v_b
+       0 if v_a == v_b
+       1 if v_a > v_b
+    """
+    a, b = str(v_a), str(v_b)
+    if a.find(".") != -1:
         a_major, a_minor = map(int, v_a.split("."))
     else:
         a_major = int(v_a)
         a_minor = 0
-    if v_b.find(".") != -1:
+    if b.find(".") != -1:
         b_major, b_minor = map(int, v_b.split("."))
     else:
         b_major = int(v_b)
         b_minor = 0
     if a_major == b_major:
-        return a_minor <= b_minor
+        if a_minor == b_minor:
+            return 0
+        else:
+            return -1 if a_minor < b_minor else 1
     else:
-        return a_major <= b_major
+        return -1 if a_major < b_major else 1
 
 def is_api_version(request, desired_version):
     """
@@ -149,8 +160,8 @@ def is_api_version(request, desired_version):
     involves a corresponding change in the client.  this way, older clients
     will not see this version of the request.
     """
-    val = _version_cmp(desired_version, get_api_version(request))
-    return val
+    val = version_cmp(desired_version, get_api_version(request))
+    return (val <= 0)
 
 def get_api_version(request):
     """ returns the api version of the requesting client """
